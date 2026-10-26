@@ -1,50 +1,89 @@
 # Bloom
 
-A responsive company constellation with MetroReach on the left and the businesses in R28’s public directory unfolding around it. Built with React, TypeScript, Vite, Tailwind CSS, Framer Motion, and shadcn/ui with Base UI accessibility primitives.
+An editable HTML, CSS, and JavaScript website showcasing the R28 businesses with MetroReach at the heart of the constellation. The cream-and-forest design, local fonts, glowing network, directory, and three-step introduction work without React, npm, a build step, or an internet connection.
 
-## Run
+## Open the website
 
-```sh
-npm ci
-npm run dev
+Double-click **index.html**, or run this in PowerShell from the project folder:
+
+```powershell
+Start-Process .\index.html
 ```
 
-Open http://127.0.0.1:5173. Use `npm run build` for the production bundle and `npm run preview` to serve that bundle locally.
+Use a current browser such as Chrome or Edge. To preview through a local address instead, with Python installed:
 
-## What works
+```powershell
+py -B -m http.server 8000 --bind 127.0.0.1
+```
 
-- Twelve businesses cycle automatically through large, overlapping, glowing spotlights, with their actual logos and readable descriptions.
-- An expansive constellation without visible playback controls, arrows, or a timeline. Select a logo to discover a company. Hovering keeps the experience flowing; keyboard focus, open profiles, and hidden pages preserve the current position. Reduced-motion preferences disable autoplay.
-- A directory with combined sector and text filters, a resettable empty state, and linked company profiles.
-- A three-step introduction to MetroReach: name and business, goal selection, and a ready-to-review email draft. The visitor sends it from their email app; the site does not claim to submit or store enquiries.
-- Shareable ecosystem links, a manual clipboard fallback, mobile navigation, and keyboard-accessible dialogs.
+Open **http://localhost:8000**. Press **Ctrl+C** in the terminal to stop the server. Python only serves the files; the website does not need a backend.
 
-The current experience is static and needs no backend, account, API key, database, or tracking service. If server-side enquiries or accounts are added, use Python/FastAPI as requested; no unused backend scaffolding is included.
+## Edit and refresh
 
-## Edit
+| File | What to change |
+| --- | --- |
+| `index.html` | Headings, page copy, company information, logo paths, links, and contact email addresses. |
+| `styles.css` | Colours in `:root`, typography, spacing, responsive layouts, and visual effects. |
+| `script.js` | Interactions, filters, dialogs, and animation timing. `SPOTLIGHT_INTERVAL` controls company cycling in milliseconds. |
+| `assets/logos/` | Company and MetroReach images. |
+| `assets/fonts/` | Local fonts and their licences. |
 
-- `src/data/companies.ts`: all company profiles, sectors, descriptions, and original logo filenames.
-- `src/components/Network.tsx`: constellation layout and playback.
-- `src/components/Directory.tsx` and `Dialogs.tsx`: discovery and contact flows.
-- `src/App.tsx` and `src/index.css`: page composition and the shared design system.
-- `public/logos/`: locally hosted logos; fonts are bundled locally as well.
+Save a file and refresh your browser. There is no export or compilation command. If your browser caches an older stylesheet, press **Ctrl+F5**.
+
+### Change a company
+
+Search `index.html` for the **COMPANY DIRECTORY** comment. Each `<article data-company="...">` contains one company's name, sector, description, logo, headline, full profile, and R28 link. The paragraphs marked `hidden` supply the company dialog; keep them in the article.
+
+Edit the visible name in `company-card-name`, the sector in `sector-label`, and the relevant paragraphs. JavaScript reads these fields and updates the network, directory, dialogs, accessible button names, filters, and counts automatically.
+
+To add a company, copy an entire article, give `data-company` a unique value, and update its content, image path, and source link. Remove an entire article to remove that business. No JavaScript edits are required for company content.
+
+## Share or host it
+
+Send these four items together, preferably as a zip:
+
+```text
+index.html
+styles.css
+script.js
+assets/
+```
+
+Recipients unzip the folder and open `index.html`. Keep the relative folder arrangement intact. To publish it, upload the same four items to any static website host; no build command is needed.
+
+The remaining package files and `tests/` are optional maintainer tools. Your team does not need them or any package installation to view, edit, or share the website.
+
+## Interactions
+
+- Twelve businesses cycle automatically through the large glowing constellation. Select a surrounding logo to spotlight it, then select the main logo to open its profile. There are no playback controls.
+- Hovering keeps the animation flowing. Keyboard interaction, an open dialog, a hidden tab, an off-screen network, or a reduced-motion preference preserves the current company.
+- The directory combines sector and text filters and offers a reset when nothing matches.
+- The three-step introduction validates name and business, offers a goal choice, and creates an encoded email draft. The visitor reviews and sends it in their own email app; the site stores and submits nothing.
+- The hosted page copies its ecosystem link with a manual-copy fallback. A locally opened page explains how to share the complete folder.
+- Native dialogs support keyboard focus, Escape, and backdrop dismissal. The company directory and main content remain readable with JavaScript disabled.
+
+External links to R28 and MetroReach need an internet connection. Sending an email requires an email app or service and connectivity.
 
 ## Sources
 
-Company names, sectors, and descriptions were checked against [R28’s public directory](https://r28.ng/our-investments) and its individual company profiles on 26 October 2026. There are 12 entries across eight directory sectors. Each profile links back to its source. Logo source URLs are `https://r28.ng/assets/` plus the `logoSource` filename in `companies.ts`; local copies only trim surrounding whitespace and optimise the image format.
+Company names, sectors, descriptions, and logos were checked against [R28's directory](https://r28.ng/our-investments) and its individual profiles on 26 October 2026. There are 12 businesses across eight sectors. Each article retains its source link and the original logo URL in a comment. Local logos only trim surrounding whitespace and optimise the image format.
 
-MetroReach’s logo comes from [metroreach.ng/metroreach-logo.png](https://metroreach.ng/metroreach-logo.png). Its service description and sales/wholesale contacts come from [MetroReach](https://www.metroreach.ng).
+MetroReach's logo comes from [metroreach.ng/metroreach-logo.png](https://metroreach.ng/metroreach-logo.png). Its service description and sales/wholesale contacts come from [MetroReach](https://www.metroreach.ng).
 
-The MetroReach network presentation follows the project brief. R28’s directory identifies its portfolio; it does not independently verify individual MetroReach customer contracts. The interface therefore avoids contract details, customer endorsements, invented performance metrics, and live network claims.
+The MetroReach presentation follows the project brief. R28's directory identifies its portfolio; it does not independently verify individual MetroReach customer contracts. No customer endorsements, contract details, or live network claims are implied.
 
-## Checks
+## Optional maintainer checks
+
+The website itself has no dependencies. Developers running the automated checks can use:
 
 ```sh
+npm ci
 npm run lint
-npm run build
 npm test
 ```
 
-Playwright uses Microsoft Edge, which is installed on this workspace. For another environment, install Playwright Chromium and remove `channel: 'msedge'` from `playwright.config.ts`. The browser suite covers automatic cycling, direct logo selection, filters, profiles, email draft validation, sharing, reduced motion, mobile layouts, and automated axe WCAG AA checks. Automated accessibility checks do not replace an assistive-technology audit.
+Only ESLint, Playwright, and axe are development dependencies. Browser checks use Microsoft Edge and a temporary Python static server on port 8765. In another environment, install Playwright Chromium and remove `channel: 'msedge'` from `playwright.config.js`.
 
-Test output goes to the operating system’s temporary directory, outside the repository. Source, necessary configuration, assets, and tests are kept in the project; generated previews and ad hoc scripts are not.
+Checks cover automatic cycling, direct selection, filters, profiles, validated email drafts, sharing, keyboard access, reduced motion, mobile widths, and axe WCAG AA checks. Separate tests copy only the four website items to an isolated folder, open them offline, and verify that changing HTML and CSS immediately updates content, counts, filtering, and colours without a build.
+
+Temporary test copies clean themselves up outside the repository. Automated accessibility checks do not replace an assistive-technology audit.

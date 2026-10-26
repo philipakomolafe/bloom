@@ -1,21 +1,10 @@
 import js from '@eslint/js'
 import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
 
-export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'test-results', 'playwright-report'] },
+// Optional maintainer checks; the website itself has no package dependencies.
+export default [
+  { ignores: ['node_modules'] },
   js.configs.recommended,
-  ...tseslint.configs.recommended,
-  {
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: { globals: { ...globals.browser, ...globals.node } },
-    plugins: { 'react-hooks': reactHooks, 'react-refresh': reactRefresh },
-    rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['error', { allowConstantExport: true }],
-    },
-  },
-  { files: ['src/components/ui/*.tsx'], rules: { 'react-refresh/only-export-components': 'off' } },
-)
+  { files: ['script.js'], languageOptions: { globals: globals.browser } },
+  { files: ['tests/*.js', 'playwright.config.js'], languageOptions: { globals: { ...globals.browser, ...globals.node } } },
+]
