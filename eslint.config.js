@@ -1,10 +1,10 @@
 import js from '@eslint/js'
 import globals from 'globals'
 
-// Optional maintainer checks; the website itself has no package dependencies.
+// The upload folder runs locally; npm is only needed for maintainer checks.
 export default [
-  { ignores: ['node_modules'] },
+  { ignores: ['node_modules', 'hotspot/assets/vendor'] },
   js.configs.recommended,
-  { files: ['script.js'], languageOptions: { globals: globals.browser } },
+  { files: ['hotspot/*.js'], languageOptions: { globals: globals.browser } },
   { files: ['tests/*.js', 'playwright.config.js'], languageOptions: { globals: { ...globals.browser, ...globals.node } } },
 ]
