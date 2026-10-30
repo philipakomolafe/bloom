@@ -10,8 +10,8 @@ test('the copied hotspot folder works offline without repository files', async (
   const directory = await mkdtemp(join(tmpdir(), 'metroreach isolated '))
   const context = await browser.newContext({ offline: true, reducedMotion: 'reduce' })
   try {
-    await cp(fileURLToPath(new URL('../hotspot', import.meta.url)), directory, { recursive: true })
-    expect((await readdir(directory)).filter((file) => file.endsWith('.html'))).toEqual(['login.html'])
+    await cp(fileURLToPath(new URL('../hotspot-metro', import.meta.url)), directory, { recursive: true })
+    expect(await readdir(directory)).toEqual(expect.arrayContaining(['login.html', 'logout.html', 'status.html', 'md5.js', 'xml', 'api.json']))
     const page = await context.newPage()
     const errors = []
     const external = []
@@ -46,7 +46,7 @@ test('the copied hotspot folder works offline without repository files', async (
 
 test('preview validation, password visibility, and inline help work without submitting', async ({ page }) => {
   await page.goto('/')
-  await expect(page).toHaveURL(/\/hotspot\/login.html$/)
+  await expect(page).toHaveURL(/\/hotspot-metro\/login.html$/)
   await expect(page.getByRole('button', { name: 'Log in & connect' })).toBeEnabled()
   const posts = []
   page.on('request', (request) => { if (request.method() === 'POST') posts.push(request.url()) })
@@ -71,7 +71,7 @@ test('one slide per company loops through all twelve companies without playback 
   await page.clock.install()
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
-  await page.goto('/hotspot/login.html')
+  await page.goto('/hotspot-metro/login.html')
   await expect(page.locator('.carousel-card:not([data-clone])')).toHaveCount(12)
   await expect(page.locator('.brand-carousel button')).toHaveCount(0)
   await expect(page.locator('.is-current h3')).toHaveText('Arbico Plc')
@@ -90,7 +90,7 @@ test('one slide per company loops through all twelve companies without playback 
 test('reduced motion stops autoplay and keeps manual scene changes available', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.clock.install()
-  await page.goto('/hotspot/login.html')
+  await page.goto('/hotspot-metro/login.html')
   await page.clock.runFor(16000)
   await expect(page.locator('.is-current h3')).toHaveText('Arbico Plc')
   await page.locator('.brand-carousel').focus()
@@ -100,9 +100,68 @@ test('reduced motion stops autoplay and keeps manual scene changes available', a
   await expect(page.locator('.is-current h3')).toHaveText('Arbico Plc')
 })
 
+test('company links stay in keyboard order, pause the carousel, and open in a separate tab', async ({ page, context }) => {
+  await page.clock.install()
+  await context.route('https://www.biswal.ng/**', (route) => route.fulfill({ contentType: 'text/html', body: '<h1>Biswal website</h1>' }))
+  await page.goto('/hotspot-metro/login.html')
+  const carousel = page.getByRole('region', { name: 'The R28 business ecosystem' })
+  await carousel.focus()
+  await page.keyboard.press('Tab')
+  await expect(carousel.getByRole('link')).toBeFocused()
+  await page.clock.runFor(10000)
+  await expect(page.locator('.is-current h3')).toHaveText('Arbico Plc')
+  await page.keyboard.press('ArrowRight')
+  await page.clock.runFor(1000)
+  await page.keyboard.press('Tab')
+  const link = carousel.getByRole('link', { name: 'Visit website: Biswal (opens in a new tab)', exact: true })
+  await expect(link).toBeFocused()
+  await expect(carousel.getByRole('link')).toHaveCount(1)
+  const popupPromise = context.waitForEvent('page')
+  await page.keyboard.press('Enter')
+  const popup = await popupPromise
+  await expect(popup).toHaveURL('https://www.biswal.ng/')
+  expect(await popup.evaluate(() => window.opener === null)).toBe(true)
+  await expect(page).toHaveURL(/\/hotspot-metro\/login.html$/)
+  await popup.close()
+})
+
+for (const input of ['mouse', 'touch']) {
+  test(`${input} swipes change company without opening its link; a tap still opens it`, async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce', hasTouch: input === 'touch', isMobile: input === 'touch', viewport: { width: input === 'touch' ? 390 : 1440, height: 1000 } })
+    try {
+      await context.route('https://www.biswal.ng/**', (route) => route.fulfill({ contentType: 'text/html', body: '<h1>Biswal website</h1>' }))
+      const page = await context.newPage()
+      await page.goto('http://127.0.0.1:8765/hotspot-metro/login.html')
+      const image = page.locator('.is-current .carousel-image')
+      const box = await image.boundingBox()
+      const start = { x: box.x + box.width * .8, y: box.y + box.height / 2 }
+      const end = { x: box.x + box.width * .2, y: start.y }
+      const client = input === 'touch' ? await context.newCDPSession(page) : null
+      if (input === 'touch') {
+        // Use a complete native gesture so Chromium finishes its touch sequence before the tap.
+        await client.send('Input.synthesizeScrollGesture', { x: start.x, y: start.y, xDistance: end.x - start.x, yDistance: 0, speed: 400, preventFling: true, gestureSourceType: 'touch' })
+      } else {
+        await page.mouse.move(start.x, start.y)
+        await page.mouse.down()
+        await page.mouse.move(end.x, end.y, { steps: 8 })
+        await page.mouse.up()
+      }
+      await expect(page.locator('.is-current h3')).toHaveText('Biswal')
+      expect(context.pages()).toHaveLength(1)
+      const link = page.getByRole('link', { name: 'Visit website: Biswal (opens in a new tab)', exact: true })
+      const popupPromise = context.waitForEvent('page', { timeout: 5000 })
+      if (input === 'touch') await link.tap()
+      else await link.click()
+      const popup = await popupPromise
+      await expect(popup).toHaveURL('https://www.biswal.ng/')
+      await expect(page).toHaveURL(/\/hotspot-metro\/login.html$/)
+    } finally { await context.close() }
+  })
+}
+
 test('small screens stay within the viewport and the page meets automated WCAG AA checks', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/hotspot/login.html')
+  await page.goto('/hotspot-metro/login.html')
   for (const width of [320, 390, 760, 768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow at ${width}`).toBe(true)
@@ -119,7 +178,7 @@ test('a missing animation library leaves form interactions usable', async ({ pag
   await page.route('**/assets/vendor/motion.js', (route) => route.abort())
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
-  await page.goto('/hotspot/login.html')
+  await page.goto('/hotspot-metro/login.html')
   await page.getByLabel('Username', { exact: true }).fill('test')
   await page.getByLabel('Password', { exact: true }).fill('not-sent')
   await page.getByRole('button', { name: 'Log in & connect' }).click()
@@ -131,7 +190,7 @@ test('disabled JavaScript shows guidance and cannot submit credentials', async (
   const context = await browser.newContext({ javaScriptEnabled: false })
   try {
     const page = await context.newPage()
-    await page.goto('http://127.0.0.1:8765/hotspot/login.html')
+    await page.goto('http://127.0.0.1:8765/hotspot-metro/login.html')
     await expect(page.getByRole('button', { name: 'Log in & connect' })).toBeDisabled()
     await expect(page.getByText('Enable JavaScript to use this login page.')).toBeVisible()
     await page.getByLabel('Username', { exact: true }).fill('test')

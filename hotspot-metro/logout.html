@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="expires" content="-1">
+  <meta name="theme-color" content="#f7f8f5">
+  <title>Logged out · MetroReach Internet</title>
+  <link rel="icon" href="assets/logos/metroreach.webp" type="image/webp">
+  <link rel="stylesheet" href="styles.css">
+  <script src="assets/vendor/motion.js" defer></script>
+  <script src="session.js" defer></script>
+</head>
+<body class="logout-page">
+  <a class="skip-link" href="#session-title">Skip to session summary</a>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+      <symbol id="wifi" viewBox="0 0 24 24"><path d="M2 8a16 16 0 0 1 20 0M5.5 12a10.5 10.5 0 0 1 13 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r=".8" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-8"/></symbol>
+      <symbol id="chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+      <symbol id="globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></symbol>
+    </defs>
+  </svg>
+
+  <main class="portal-layout">
+    <section class="story-panel session-story" aria-labelledby="story-title">
+      <header class="brand-row">
+        <a class="brand" href="login.html" aria-label="MetroReach Internet home"><img src="assets/logos/metroreach.webp" alt="MetroReach" width="486" height="94"><span>INTERNET</span></a>
+        <span class="brand-tagline">Fibre deep. Reach wide.</span>
+      </header>
+      <div class="story-heading">
+        <p class="eyebrow"><span class="eyebrow-line"></span> UNTIL WE CONNECT AGAIN</p>
+        <h1 id="story-title">A little pause.<br><em>A world ahead.</em></h1>
+        <p>Thanks for making us part of your day.<br> We’ll be here for your next connection.</p>
+      </div>
+      <div class="connection-art" aria-hidden="true">
+        <svg class="connection-orbits" viewBox="0 0 440 280" fill="none">
+          <ellipse cx="220" cy="140" rx="190" ry="108"/>
+          <ellipse cx="220" cy="140" rx="137" ry="78"/>
+          <ellipse cx="220" cy="140" rx="84" ry="48"/>
+          <path d="M30 140h380M220 32v216" stroke-dasharray="3 7"/>
+          <circle cx="71" cy="73" r="5"/><circle cx="361" cy="211" r="5"/>
+        </svg>
+        <div class="connection-emblem"><div><svg class="icon"><use href="#wifi"/></svg></div></div>
+        <span class="connection-caption">EVERYDAY MOMENTS. BETTER CONNECTED.</span>
+      </div>
+      <div class="session-story-signoff"><span>YOUR WORLD, WITHIN REACH.</span><span>METROREACH INTERNET <span aria-hidden="true">↗</span></span></div>
+    </section>
+
+    <section class="login-panel session-panel" aria-labelledby="session-title">
+      <div class="hotspot-label"><svg class="icon" aria-hidden="true"><use href="#wifi"/></svg><span>METROREACH HOTSPOT</span></div>
+      <div class="session-content">
+        <span class="session-state"><svg class="icon" aria-hidden="true"><use href="#check"/></svg> SESSION ENDED</span>
+        <h2 id="session-title" tabindex="-1">You’re logged out.</h2>
+        <p class="login-description">All done for now. Here’s a look at your session.</p>
+
+        <!-- RouterOS supplies the completed session; no browser storage or fabricated totals. -->
+        <div class="session-card">
+          <div class="session-card-inner">
+            <div class="session-account"><span class="eyebrow">YOUR SESSION</span><p data-router-value>$(username)</p></div>
+            <dl class="session-metrics">
+              <div class="session-duration"><dt>Time connected</dt><dd data-router-value>$(uptime)</dd></div>
+              <div><dt>Uploaded</dt><dd data-router-value>$(bytes-in-nice)</dd></div>
+              <div><dt>Downloaded</dt><dd data-router-value>$(bytes-out-nice)</dd></div>
+            </dl>
+            <!-- $(if session-time-left) -->
+            <dl class="session-remaining"><div><dt>Time remaining</dt><dd data-router-value>$(session-time-left)</dd></div></dl>
+            <!-- $(endif) -->
+            <details class="connection-details">
+              <summary><span>Connection details</span><svg class="icon chevron" aria-hidden="true"><use href="#chevron"/></svg></summary>
+              <dl><div><dt>IP address</dt><dd data-router-value>$(ip)</dd></div><div><dt>MAC address</dt><dd data-router-value>$(mac)</dd></div></dl>
+            </details>
+          </div>
+        </div>
+
+        <a id="reconnect-link" class="primary-button" href="$(link-login)"><span>Log in again</span><span class="button-icon" aria-hidden="true"><svg class="icon"><use href="#arrow"/></svg></span></a>
+        <p class="credentials-note">Ready for more? Your next connection is a click away.</p>
+        <p class="session-help">Need a hand? <a href="mailto:sales@metroreach.ng">Contact MetroReach <span aria-hidden="true">↗</span></a></p>
+      </div>
+      <div class="login-signoff"><svg class="icon" aria-hidden="true"><use href="#globe"/></svg><span>Internet, made effortless.</span></div>
+    </section>
+  </main>
+  <footer class="page-footer"><span>© 2026 MetroReach Internet</span><span>Made for a more connected world.</span><span>English <span aria-hidden="true">·</span> Nigeria</span></footer>
+</body>
+</html>

@@ -1,10 +1,12 @@
 ﻿# MetroReach Internet
 
-A standalone login-page design for the team to integrate with its existing system. It pairs a username/password form with an automatically sliding carousel: one slide per company, using all twelve original R28 logos and MetroReach branding. Desktop and phones share the design, with swipe support and no playback buttons.
+A MikroTik RouterOS hotspot portal combining the MetroReach login design with the imported hotspot authentication and session pages. The login keeps its twelve-company carousel; logout uses the same fonts, colors, and responsive layout with a session summary and reconnect action.
 
-**Send only the `hotspot` folder.** Open `index.html` or `hotspot/login.html` to preview. There is no backend or MikroTik authentication implementation. Preview submissions send nothing.
+**Deploy only `hotspot-metro`.** It contains the login, logout, status, redirects, CHAP helper, captive portal API, XML templates, and local assets. There is one portal folder.
 
-See [hotspot/README.md](hotspot/README.md) for the file guide and the integration point in `script.js`. No package installation is needed to use or share the folder.
+Open `index.html` to preview login or `hotspot-metro/logout.html` to preview logout. Local previews send no credentials and show dashes for session values. RouterOS renders the real endpoints, session values, and redirects when deployed. Account creation, passwords, access plans, and session limits remain managed by the existing router/RADIUS setup.
+
+See [hotspot-metro/README.md](hotspot-metro/README.md) for deployment and file details. No installation or build step is needed on the router.
 
 ## Maintainer checks
 
@@ -14,6 +16,8 @@ npm run lint
 npm test
 ```
 
-Checks use Playwright, Microsoft Edge, axe, and Python's static server. Test artifacts and isolated folder copies stay outside the repository.
+Checks use Playwright, Microsoft Edge, axe, and Python's static server. Tests render RouterOS templates in memory and intercept requests to verify PAP/CHAP login, redirects, errors, trial access, logout, popup fallbacks, accessibility, and offline assets. Test artifacts and isolated folder copies stay outside the repository.
 
-Framer Motion is installed per project preferences; its small DOM build and license are bundled locally. `shadcn@latest init --defaults` was attempted but does not support this plain HTML project. The page stays native HTML/CSS so the team can integrate it without a framework or build pipeline.
+These checks simulate RouterOS; verify successful and unsuccessful login, session status, logout, and reconnect on the actual router before replacing its active portal.
+
+Framer Motion is installed per project preferences; its small DOM build and license are bundled locally. `shadcn@latest init --defaults` does not support this plain HTML project. The portal stays native HTML/CSS/JavaScript for RouterOS compatibility.
